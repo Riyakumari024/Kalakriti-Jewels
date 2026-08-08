@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 permissions:
@@ -27,23 +26,14 @@ jobs:
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
-      - name: Verify Website Files
+      - name: Verify Website
         run: |
-          echo "Checking website files..."
-          ls -la
+          echo "Checking website..."
+          test -f index.html
+          echo "index.html found"
 
-          if [ ! -f "index.html" ]; then
-            echo "ERROR: index.html not found"
-            exit 1
-          fi
-
-          echo "index.html found successfully"
-          echo "Website verification completed"
-
-      - name: Upload GitHub Pages Artifact
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: .
@@ -51,6 +41,7 @@ jobs:
   deploy:
     name: Deploy Website
     needs: build
+    runs-on: ubuntu-latest
 
     permissions:
       pages: write
@@ -60,9 +51,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
