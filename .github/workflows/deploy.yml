@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 permissions:
@@ -17,43 +16,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   build:
-    name: Build Website
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout Source Code
+      - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Configure GitHub Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Verify Website Files
+      - name: Verify Website
         run: |
-          echo "Checking Kalakriti Jewels website..."
-          ls -la
           test -f index.html
-          echo "index.html found successfully."
+          echo "Website ready"
 
-      - name: Upload Website Artifact
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
   deploy:
-    name: Deploy Website
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    runs-on: ubuntu-latest
-
-    needs: build
-
     steps:
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
