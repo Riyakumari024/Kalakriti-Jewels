@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
   workflow_dispatch:
 
 permissions:
@@ -17,28 +18,39 @@ concurrency:
 
 jobs:
   build:
+    name: Build Website
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Source Code
         uses: actions/checkout@v6
 
-      - name: Configure Pages
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
-      - name: Verify Website
+      - name: Verify Website Files
         run: |
-          test -f index.html
-          echo "Website ready"
+          echo "Checking website files..."
+          ls -la
 
-      - name: Upload Pages Artifact
+          if [ ! -f "index.html" ]; then
+            echo "ERROR: index.html not found"
+            exit 1
+          fi
+
+          echo "index.html found successfully"
+          echo "Website verification completed"
+
+      - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
   deploy:
+    name: Deploy Website
     needs: build
-    runs-on: ubuntu-latest
 
     permissions:
       pages: write
@@ -48,7 +60,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
